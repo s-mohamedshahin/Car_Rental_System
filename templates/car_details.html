@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2>{{ car.brand }} {{ car.model }}</h2>
+
+<p>Type: {{ car.type }}</p>
+<p>GPS: {{ "Yes" if car.gps else "No" }}</p>
+<p>Rate: ${{ "%.2f"|format(car.rental_rate) }}/day</p>
+<p>Status: <strong>{{ car.availability }}</strong></p>
+<p>{{ car.description }}</p>
+
+<button class="btn" onclick="alert('Rent feature is implemented by Member 3')">Rent</button>
+
+{% endblock %}

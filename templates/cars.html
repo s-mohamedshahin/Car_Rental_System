@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h2>Cars</h2>
+
+<form method="get" style="margin-bottom: 15px;">
+    <input type="text" name="brand" placeholder="Brand" value="{{ request.args.get('brand', '') }}">
+    <input type="text" name="model" placeholder="Model" value="{{ request.args.get('model', '') }}">
+    <input type="text" name="type" placeholder="Type" value="{{ request.args.get('type', '') }}">
+
+    <label><input type="checkbox" name="gps" value="1" {% if request.args.get('gps')=='1' %}checked{% endif %}> GPS</label>
+    <label><input type="checkbox" name="only_available" value="1" {% if request.args.get('only_available')=='1' %}checked{% endif %}> Only Available</label>
+
+    <button class="btn">Search</button>
+</form>
+
+{% for car in cars %}
+<div class="car-card">
+    <strong>{{ car.brand }} {{ car.model }}</strong>
+    <p>Type: {{ car.type }}</p>
+    <p>Rate: ${{ "%.2f"|format(car.rental_rate) }}/day</p>
+    <p>Status: <strong>{{ car.availability }}</strong></p>
+    <a class="btn" href="{{ url_for('car_details', car_id=car.id) }}">View</a>
+</div>
+{% else %}
+<p>No cars found</p>
+{% endfor %}
+
+{% endblock %}
