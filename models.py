@@ -25,3 +25,4 @@ class Car(db.Model):
             "availability": self.availability,
             "description": self.description
         }
+
