@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard - Car Rental System{% endblock %}
+
+{% block content %}
+
+<h2 style="text-align: center; margin-bottom: 40px; font-size: 2.5rem;">
+    📊 Dashboard & Statistics
+</h2>
+
+<!-- Overall Statistics -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total_cars }}</div>
+        <div class="stat-label">Total Cars</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.available_cars }}</div>
+        <div class="stat-label">Available</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.rented_cars }}</div>
+        <div class="stat-label">Rented</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-value">${{ "%.2f"|format(stats.avg_rate) }}</div>
+        <div class="stat-label">Avg Rate</div>
+    </div>
+</div>
+
+<!-- Additional Info Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 30px;">
+    <div class="search-container">
+        <h3 style="margin-bottom: 15px; color: var(--text-primary);">📈 Price Range</h3>
+        <div class="car-details">
+            <div class="car-detail-item">
+                <span class="car-detail-label">Minimum</span>
+                <span class="car-detail-value">${{ "%.2f"|format(stats.min_price) }}/day</span>
+            </div>
+            <div class="car-detail-item">
+                <span class="car-detail-label">Maximum</span>
+                <span class="car-detail-value">${{ "%.2f"|format(stats.max_price) }}/day</span>
+            </div>
+            <div class="car-detail-item">
+                <span class="car-detail-label">Average</span>
+                <span class="car-detail-value">${{ "%.2f"|format(stats.avg_rate) }}/day</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="search-container">
+        <h3 style="margin-bottom: 15px; color: var(--text-primary);">🚗 Fleet Information</h3>
+        <div class="car-details">
+            <div class="car-detail-item">
+                <span class="car-detail-label">Most Popular Type</span>
+                <span class="car-detail-value">{{ stats.most_popular_type }}</span>
+            </div>
+            <div class="car-detail-item">
+                <span class="car-detail-label">Total Inventory</span>
+                <span class="car-detail-value">{{ stats.total_cars}} vehicles</span>
+            </div>
+            <div class="car-detail-item">
+                <span class="car-detail-label">Utilization</span>
+                <span class="car-detail-value">
+                    {% if stats.total_cars > 0 %}
+                    {{ "%.1f"|format((stats.rented_cars / stats.total_cars) * 100) }}%
+                    {% else %}
+                    0%
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="text-align: center; margin-top: 50px;">
+    <a href="{{ url_for('list_cars') }}" class="btn">Browse All Cars →</a>
+</div>
+
+{% endblock %}

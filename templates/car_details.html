@@ -1,14 +1,61 @@
 {% extends "layout.html" %}
+{% block title %}{{ car.brand }} {{ car.model }} - Car Details{% endblock %}
+
 {% block content %}
 
-<h2>{{ car.brand }} {{ car.model }}</h2>
+<div class="car-card" style="max-width: 800px; margin: 0 auto;">
+    <div class="car-header">
+        <div>
+            <h2 class="car-title">{{ car.brand }} {{ car.model }}</h2>
+            <p class="car-type">{{car.type }}</p>
+        </div>
+        <span
+            class="status-badge {% if car.availability == 'Available' %}status-available{% else %}status-rented{% endif %}">
+            {{ car.availability }}
+        </span>
+    </div>
 
-<p>Type: {{ car.type }}</p>
-<p>GPS: {{ "Yes" if car.gps else "No" }}</p>
-<p>Rate: ${{ "%.2f"|format(car.rental_rate) }}/day</p>
-<p>Status: <strong>{{ car.availability }}</strong></p>
-<p>{{ car.description }}</p>
+    <div class="car-price">
+        ${{ "%.2f"|format(car.rental_rate) }}<span>/day</span>
+    </div>
 
-<button class="btn" onclick="alert('Rent feature is implemented by Member 3')">Rent</button>
+    <div class="car-details">
+        <div class="car-detail-item">
+            <span class="car-detail-label">Vehicle Type</span>
+            <span class="car-detail-value">{{ car.type }}</span>
+        </div>
+
+        <div class="car-detail-item">
+            <span class="car-detail-label">📡 GPS Navigation</span>
+            <span class="car-detail-value">{{ "✅ Yes" if car.gps else "❌ No" }}</span>
+        </div>
+
+        <div class="car-detail-item">
+            <span class="car-detail-label">Daily Rate</span>
+            <span class="car-detail-value">${{ "%.2f"|format(car.rental_rate) }}</span>
+        </div>
+
+        <div class="car-detail-item">
+            <span class="car-detail-label">Availability</span>
+            <span class="car-detail-value">{{ car.availability }}</span>
+        </div>
+    </div>
+
+    {% if car.description %}
+    <div style="margin: 25px 0; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 15px;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--text-secondary);">Description</h3>
+        <p style="color: var(--text-primary); line-height: 1.8;">{{ car.description }}</p>
+    </div>
+    {% endif %}
+
+    <div class="car-actions" style="margin-top: 30px;">
+        <a href="{{ url_for('list_cars') }}" class="btn btn-secondary">← Back to Cars</a>
+        {% if car.availability == 'Available' %}
+        <button class="btn btn-success" onclick="alert('Rent feature is implemented by Member 3')">Rent Now</button>
+        {% else %}
+        <button class="btn" style="opacity: 0.5; cursor: not-allowed;" disabled>Currently Rented</button>
+        {% endif %}
+    </div>
+</div>
 
 {% endblock %}

@@ -1,29 +1,130 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<h2>Cars</h2>
-
-<form method="get" style="margin-bottom: 15px;">
-    <input type="text" name="brand" placeholder="Brand" value="{{ request.args.get('brand', '') }}">
-    <input type="text" name="model" placeholder="Model" value="{{ request.args.get('model', '') }}">
-    <input type="text" name="type" placeholder="Type" value="{{ request.args.get('type', '') }}">
-
-    <label><input type="checkbox" name="gps" value="1" {% if request.args.get('gps')=='1' %}checked{% endif %}> GPS</label>
-    <label><input type="checkbox" name="only_available" value="1" {% if request.args.get('only_available')=='1' %}checked{% endif %}> Only Available</label>
-
-    <button class="btn">Search</button>
-</form>
-
-{% for car in cars %}
-<div class="car-card">
-    <strong>{{ car.brand }} {{ car.model }}</strong>
-    <p>Type: {{ car.type }}</p>
-    <p>Rate: ${{ "%.2f"|format(car.rental_rate) }}/day</p>
-    <p>Status: <strong>{{ car.availability }}</strong></p>
-    <a class="btn" href="{{ url_for('car_details', car_id=car.id) }}">View</a>
+<!-- Statistics Display -->
+{% if stats %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.count }}</div>
+        <div class="stat-label">Results Found</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">${{ "%.2f"|format(stats.avg_price) }}</div>
+        <div class="stat-label">Avg Price</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">${{ "%.2f"|format(stats.min_price) }}</div>
+        <div class="stat-label">Min Price</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">${{ "%.2f"|format(stats.max_price) }}</div>
+        <div class="stat-label">Max Price</div>
+    </div>
 </div>
-{% else %}
-<p>No cars found</p>
-{% endfor %}
+{% endif %}
+
+<!-- Search Form -->
+<div class="search-container">
+    <form method="get" class="search-form">
+        <div class="form-group">
+            <label>Brand</label>
+            <input type="text" name="brand" placeholder="e.g., Toyota" value="{{ request.args.get('brand', '') }}">
+        </div>
+
+        <div class="form-group">
+            <label>Model</label>
+            <input type="text" name="model" placeholder="e.g., Corolla" value="{{ request.args.get('model', '') }}">
+        </div>
+
+        <div class="form-group">
+            <label>Type</label>
+            <input type="text" name="type" placeholder="e.g., SUV" value="{{ request.args.get('type', '') }}">
+        </div>
+
+        <div class="form-group">
+            <label>Min Price</label>
+            <input type="number" name="min_price" placeholder="$0" value="{{ request.args.get('min_price', '') }}">
+        </div>
+
+        <div class="form-group">
+            <label>Max Price</label>
+            <input type="number" name="max_price" placeholder="$100" value="{{ request.args.get('max_price', '') }}">
+        </div>
+
+        <div class="form-group">
+            <label>Sort By</label>
+            <select name="sort_by">
+                <option value="">Default</option>
+                <option value="price_asc" {% if request.args.get('sort_by')=='price_asc' %}selected{% endif %}>Price:
+                    Low to High</option>
+                <option value="price_desc" {% if request.args.get('sort_by')=='price_desc' %}selected{% endif %}>Price:
+                    High to Low</option>
+                <option value="brand" {% if request.args.get('sort_by')=='brand' %}selected{% endif %}>Brand A-Z
+                </option>
+                <option value="availability" {% if request.args.get('sort_by')=='availability' %}selected{% endif %}>
+                    Availability</option>
+            </select>
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" name="gps" value="1" id="gps" {% if request.args.get('gps')=='1' %}checked{% endif
+                %}>
+            <label for="gps">GPS Only</label>
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" name="only_available" value="1" id="available" {% if
+                request.args.get('only_available')=='1' %}checked{% endif %}>
+            <label for="available">Available Only</label>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn">Search</button>
+        </div>
+    </form>
+</div>
+
+<!-- Car Cards -->
+<div class="cars-grid">
+    {% for car in cars %}
+    <div class="car-card">
+        <div class="car-header">
+            <div>
+                <h3 class="car-title">{{ car.brand }} {{ car.model }}</h3>
+                <p class="car-type">{{ car.type }}</p>
+            </div>
+            <span
+                class="status-badge {% if car.availability == 'Available' %}status-available{% else %}status-rented{% endif %}">
+                {{ car.availability }}
+            </span>
+        </div>
+
+        <div class="features">
+            <span class="feature {% if car.gps %}active{% endif %}">
+                📡 GPS: {% if car.gps %}Yes{% else %}No{% endif %}
+            </span>
+        </div>
+
+        <div class="car-price">
+            ${{ "%.2f"|format(car.rental_rate) }}<span>/day</span>
+        </div>
+
+        {% if car.description %}
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 10px 0;">
+            {{ car.description }}
+        </p>
+        {% endif %}
+
+        <div class="car-actions">
+            <a href="{{ url_for('car_details', car_id=car.id) }}" class="btn">View Details</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <h3>No cars found</h3>
+        <p>Try adjusting your search filters</p>
+    </div>
+    {% endfor %}
+</div>
 
 {% endblock %}
