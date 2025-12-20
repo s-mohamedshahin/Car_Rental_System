@@ -1,20 +1,24 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Car Rental System</title>
-    <style>
-        body { font-family: Arial; margin: 20px; max-width: 900px; }
-        .car-card { border: 1px solid #ccc; padding: 12px; margin-bottom: 12px; border-radius: 6px; }
-        .btn { background: #007bff; color: #fff; padding: 7px 14px; text-decoration: none; border-radius: 4px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Car Rental System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-
-<h1>Car Rental System</h1>
-<hr>
-
-{% block content %}{% endblock %}
-
+    <div class="container">
+        <header>
+            <h1>🚗 Car Rental System</h1>
+            <p class="subtitle">Find Your Perfect Ride</p>
+        </header>
+        
+        <nav>
+            <a href="{{ url_for('list_cars') }}" class="nav-link">Browse Cars</a>
+            <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+        </nav>
+        
+        {% block content %}{% endblock %}
+    </div>
 </body>
 </html>

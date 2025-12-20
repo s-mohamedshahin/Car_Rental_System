@@ -1,9 +1,21 @@
 # app.py
-from flask import Flask, render_template, request, redirect, url_for, jsonify
-from models import db, Car
+from flask import Flask, render_template, redirect, url_for
+from models import db
+from controller import CarController
 
-def create_app(db_path='sqlite:///cars.db'):
+import os
+
+def create_app(db_path=None):
     app = Flask(__name__)
+    
+    # Ensure instance folder exists
+    instance_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'instance')
+    if not os.path.exists(instance_path):
+        os.makedirs(instance_path)
+
+    if db_path is None:
+        db_path = 'sqlite:///' + os.path.join(instance_path, 'cars.db')
+
     app.config['SQLALCHEMY_DATABASE_URI'] = db_path
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
@@ -15,45 +27,23 @@ def create_app(db_path='sqlite:///cars.db'):
 
     @app.route('/cars')
     def list_cars():
-        q = Car.query
-
-        brand = request.args.get('brand')
-        model_q = request.args.get('model')
-        type_q = request.args.get('type')
-        gps_q = request.args.get('gps')
-        only_available = request.args.get('only_available')
-
-        if brand:
-            q = q.filter(Car.brand.ilike(f"%{brand}%"))
-        if model_q:
-            q = q.filter(Car.model.ilike(f"%{model_q}%"))
-        if type_q:
-            q = q.filter(Car.type.ilike(f"%{type_q}%"))
-        if gps_q == "1":
-            q = q.filter(Car.gps.is_(True))
-        if only_available == "1":
-            q = q.filter(Car.availability == "Available")
-
-        cars = q.all()
-        return render_template('cars.html', cars=cars)
+        cars = CarController.get_all_cars_filtered()
+        stats = CarController.get_filtered_statistics(cars)
+        return render_template('cars.html', cars=cars, stats=stats)
+    
+    @app.route('/dashboard')
+    def dashboard():
+        stats = CarController.get_statistics()
+        return render_template('dashboard.html', stats=stats)
 
     @app.route('/cars/<int:car_id>')
     def car_details(car_id):
-        car = Car.query.get_or_404(car_id)
+        car = CarController.get_car_by_id(car_id)
         return render_template('car_details.html', car=car)
 
     @app.route('/api/cars/<int:car_id>/status', methods=['PUT'])
     def update_status(car_id):
-        car = Car.query.get_or_404(car_id)
-        data = request.get_json() or {}
-        status = data.get("availability")
-
-        if status not in ('Available', 'Rented'):
-            return jsonify({"error": "Invalid status"}), 400
-
-        car.availability = status
-        db.session.commit()
-        return jsonify({"message": "Status updated", "car": car.to_dict()})
+        return CarController.update_car_status(car_id)
 
     return app
 
